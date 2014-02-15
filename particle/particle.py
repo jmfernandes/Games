@@ -4,6 +4,7 @@ from pygame.locals import *
 clock = pygame.time.Clock() #set up the clock
 fps_limit = 30 #limit how fast the while loop runs
 
+clicks = 0
 
 # establish colors
 black = 0,0,0
@@ -18,22 +19,27 @@ colors = [black, red, green, blue] #put colors in array
 #establish parameters
 gravity = euclid.Vector2(0.0, 80.0)
 drag = 0.1
-elasticity = .3
+elasticity = .1
+min_velocity = 15
+max_velocity = 25
 initial_velocity = 20;
 #===================================================
 
-
+max_circles_on_screen = 60
 my_circles = [] #set up empty array to contain my list of objects
 
 
 def populate():
     mx, my = pygame.mouse.get_pos() #saves x and y position of cursor as mx and my respectively
-    size = 2 #the inner radius of circles in pixels
+    mx += random.randint(-2,2)
+    my += random.randint(-2,2)
+    size = 30 #the inner radius of circles in pixels
     color = random.choice(colors) #chooses random element of colors list
     velocity = get_random_velocity() #runs the get_random_velocity definition
     #establishes my_circle as a class object
     my_circle = MySun(euclid.Vector2(mx,my),size,color,velocity, gravity)
     my_circles.append(my_circle) #adds the my_circle object to the list
+
 
 def get_random_velocity():
     new_angle = random.uniform(0, math.pi*2) #creates random angle
@@ -41,18 +47,26 @@ def get_random_velocity():
     new_y = math.cos(new_angle)
     new_vector = euclid.Vector2(new_x,new_y)
     new_vector.normalize()
-    new_vector *= initial_velocity #pixels per second
+    new_vector *= random.randint(min_velocity,max_velocity) #pixels per second
     return new_vector #when definition is invoked, new_vector is put forth as an arguement
 
 #class that has properties of each circle
 class MySun:
-    def __init__(self, position, size, color = (255,255,255), velocity = euclid.Vector2(0,0), acceleration = euclid.Vector2(0.0), width = 1):
+    def __init__(self, position, size, color = (255,255,255), velocity = euclid.Vector2(0,0), acceleration = euclid.Vector2(0.0), width = 1, stopped=0):
         self.position = position
         self.velocity = velocity
         self.acceleration = acceleration
+        self.stopped = stopped
         self.size = size
         self.color = color
         self.width = width
+
+    def delete(object):
+        game._display_surf.fill(white)
+        my_circles.pop(my_circles.index(object))
+        for i, my_circle in enumerate(my_circles):
+            my_circle.display()
+
 
     def display(self):
         #draws the circle
@@ -128,14 +142,17 @@ class Game(object):
         #events are things like pushing keys or clicking the mouse. These take priority and will interrupt other functions (i think. maybe)
         if event.type == pygame.QUIT:
             self._running = False
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            populate()
+        # if event.type == pygame.MOUSEBUTTONDOWN:
+            # populate()
     def on_loop(self):
         #updates the time
         self.dtime_ms = clock.tick(fps_limit)
         self.dtime = self.dtime_ms/1000.0
-        #updates the screen
-        pygame.display.flip()
+        for i, my_circle in enumerate(my_circles):
+            if (my_circle.position[1] > (self.height-my_circle.size-1) and abs(my_circle.velocity[1]) < 2.00 ):
+                my_circle.stopped += 1
+                if (my_circle.stopped == 10):
+                    MySun.delete(my_circle)
 
     def on_render(self):
         #i don't know what screen lock does
@@ -154,8 +171,16 @@ class Game(object):
     def on_execute(self):
         if self.on_init() == False:
             self._running = False
- 
         while( self._running ): #runs the loop and render defintions, but checks for events before running either
+            if pygame.mouse.get_pressed()[0]:
+                populate()
+                if len(my_circles) >= max_circles_on_screen:
+                    MySun.delete(my_circles[0])
+                for i, my_circle in enumerate(my_circles):
+                    if (my_circle.position[1] > (self.height-my_circle.size-1) and abs(my_circle.velocity[1]) < 2.00 ):
+                        my_circle.stopped += 1
+                        if (my_circle.stopped == 10):
+                            MySun.delete(my_circle)
             for event in pygame.event.get():
                 self.on_event(event)
             self.on_loop()
