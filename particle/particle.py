@@ -1,3 +1,8 @@
+#notes: replace every loop with recursive function
+#replace arrays with hash tables
+#hashlitst call by memory locations
+#if they dont have hashlist use treelist
+
 import sys, pygame, random, euclid, math
 from pygame.locals import *
 
@@ -33,7 +38,7 @@ def populate():
     mx, my = pygame.mouse.get_pos() #saves x and y position of cursor as mx and my respectively
     mx += random.randint(-2,2)
     my += random.randint(-2,2)
-    size = 30 #the inner radius of circles in pixels
+    size = 1 #the inner radius of circles in pixels
     color = random.choice(colors) #chooses random element of colors list
     velocity = get_random_velocity() #runs the get_random_velocity definition
     #establishes my_circle as a class object
