@@ -1,0 +1,19 @@
+#:kivy 1.8.0
+
+<FireGame>:
+    ball: fire_ball
+
+    canvas:
+    	Color:
+    		rgb: 1,1,0
+
+    FireBall:
+        id: fire_ball
+        center: self.parent.center
+
+<FireBall>:
+    size: 30, 30
+    canvas:
+        Ellipse:
+            pos: self.pos
+            size: self.size

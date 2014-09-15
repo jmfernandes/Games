@@ -1,0 +1,24 @@
+#:kivy 1.8.0
+
+<FireGame>:
+	particle: fire_particle
+
+	canvas:
+		Color:
+            rgb: .5, .5, .5
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    ParticleBall:
+    	id: fire_particle
+    	center: self.parent.center
+
+<ParticleBall>
+	size: 30,30
+	canvas:
+		Ellipse:
+			pos: self.pos
+			size: self.size
+		Color:
+            rgb: 1, 1, 1
